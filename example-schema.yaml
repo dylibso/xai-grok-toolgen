@@ -1,0 +1,70 @@
+version: v1-draft
+exports:
+  findPeakFrequency:
+    description: |
+      Determine the frequency that has the highest amplitude, over this sample of audio data.
+      This function runs some kind of time-dimensional FFT on audio input.
+    codeSamples:
+      - lang: typescript
+        source: |
+          // Perform FFT and find peak frequency
+          const fftResult = performFFT(input);
+          const peakFrequency = findPeak(fftResult);
+          return { frequency: peakFrequency };
+    input:
+      contentType: application/x-binary
+      type: buffer
+      description: A stream of bytes including audio samples
+    output:
+      contentType: application/json
+      $ref: "#/components/schemas/PeakFrequencyResponse"
+
+components:
+  schemas:
+    PeakFrequencyResponse:
+      description: Output from the findPeakFrequency function
+      properties:
+        frequency:
+          type: number
+          format: float
+          description: The frequency in Hz that has the highest amplitude
+
+    InferenceMLInput:
+      description: Input for the GPU-accelerated ML inference function
+      properties:
+        model:
+          type: string
+          description: The name or identifier of the ML model to use
+        data:
+          type: object
+          description: The input data for the ML model
+
+    InferenceMLOutput:
+      description: Output from the GPU-accelerated ML inference function
+      properties:
+        result:
+          type: object
+          description: The result of the ML inference
+
+    EmbeddingRequest:
+      description: Input for the text embedding function
+      properties:
+        text:
+          type: string
+          description: The text to be embedded
+        model:
+          type: string
+          description: The embedding model to use (e.g., "bert-base-uncased")
+
+    EmbeddingResponse:
+      description: Output from the text embedding function
+      properties:
+        embedding:
+          type: array
+          items:
+            type: number
+            format: float
+          description: The resulting embedding vector
+        dimensions:
+          type: integer
+          description: The number of dimensions in the embedding

@@ -1,0 +1,163 @@
+getting you up to speed, we're going to be generating two categories of outputs. 
+
+1. an XTP Schema, which is a YAML definition of functions that can be called by other code. The code is encapsulated in a WebAssembly module, but that isn't important to know to generate the XTP Schema. There are a couple helpful things to know about XTP Schema and I'll mention some files and references to aid you in this information (take special note of the xtp-schema.json file which contrains the types and specification of types and functions that can be defined in the schema --- DO NOT try to add anything new in your output schemas, follow the spec exactly. Use the example-schema as a point of reference about the required fields of a schema, only adding that and property field can be nullable if it isn't _required_ to do some computation. 
+
+I'll also add a README and your own interpretation of that README so you can get an Idea of what we're doing and have already done. @README.md @README.inferred.md 
+
+This should all help you understand about how to generate an XTP Shema, and the input of this will come from some code calling a function like `generateSchema` which takes some parameters: 
+
+ (this is mentioned in the context)
+
+Your job is to take the parameters passed to something like generateSchema (which an LLM should come up with), and output an XTP Schema that describes the function (or functions) needed to actually use the code. That includes Inputs and Outputs to the function, which you would think of as an input/output struct ,, and some descriptive context about what the code should do. 
+
+> NOTE: take special care _not_ to include the function signature / declaration
+> in any generated code you add to the `codeSamples` `source` field. It should
+> _only_ be the function body, since this is used to stub out example code in
+> the generated output provided to the end user.
+
+Code lookup & generation concept
+
+Provided a library function like:
+
+```js
+function generateSchema(
+  description: string,
+  inputDescription: string,
+  outputDescription: string,
+  additionalContext?: string
+): XTPSchema
+```
+
+This brings us to the second kind of output.. which is 
+
+2. the actual implementation of some code, that I will provide you with a stub for. Basically, with the generated XTP Schema, I will generate the stub code (partially filled in) for you to complete the implementation of. 
+
+You will be given code that was generated from the XTP Schema without the inside of the functions in the `main` file filled in. You must 1. learn about the code from looking at the generated code I provide like the libraries and types. And then generate code that should work uneditied to implement the functions. 
+
+Here is an XTP Schem example: 
+
+```yaml file=audio-analysis-schema.yaml
+version: v1-draft
+exports:
+  findPeakFrequency:
+    description: |
+      Determine the frequency that has the highest amplitude, over this sample of audio data.
+      This function runs some kind of time-dimensional FFT on audio input.
+    codeSamples:
+      - lang: typescript
+        source: |
+          // Perform FFT and find peak frequency
+          const fftResult = performFFT(input);
+          const peakFrequency = findPeak(fftResult);
+          return { frequency: peakFrequency };
+    input:
+      contentType: application/x-binary
+      type: buffer
+      description: A stream of bytes including audio samples
+    output:
+      contentType: application/json
+      $ref: "#/components/schemas/PeakFrequencyResponse"
+
+components:
+  schemas:
+    PeakFrequencyResponse:
+      description: Output from the findPeakFrequency function
+      properties:
+        frequency:
+          type: number
+          format: float
+          description: The frequency in Hz that has the highest amplitude
+
+    InferenceMLInput:
+      description: Input for the GPU-accelerated ML inference function
+      properties:
+        model:
+          type: string
+          description: The name or identifier of the ML model to use
+        data:
+          type: object
+          description: The input data for the ML model
+
+    InferenceMLOutput:
+      description: Output from the GPU-accelerated ML inference function
+      properties:
+        result:
+          type: object
+          description: The result of the ML inference
+
+    EmbeddingRequest:
+      description: Input for the text embedding function
+      properties:
+        text:
+          type: string
+          description: The text to be embedded
+        model:
+          type: string
+          description: The embedding model to use (e.g., "bert-base-uncased")
+
+    EmbeddingResponse:
+      description: Output from the text embedding function
+      properties:
+        embedding:
+          type: array
+          items:
+            type: number
+            format: float
+          description: The resulting embedding vector
+        dimensions:
+          type: integer
+          description: The number of dimensions in the embedding
+```
+
+Here is a previously inferred analysis from the fine tuning information above, in case its helpful: 
+
+# Analysis of Agentic LLM System Utility
+
+## Key Strengths
+
+### Flexibility and Adaptability
+
+1. **Dynamic code generation**: AI agents can "lookup" and generate code based
+   on high-level descriptions, enabling on-demand functionality creation.
+2. **Cross-language support**: While Go is used in the example, the schema-based
+   approach suggests multi-language compatibility.
+
+### Standardization and Integration
+
+3. **Standardized schema**: XTP Schema provides a structured way to define
+   functions, inputs, and outputs, facilitating easier integration and
+   interoperability.
+
+### Performance Optimization
+
+4. **GPU acceleration**: Support for GPU-accelerated ML inference and text
+   embedding improves performance for AI-related tasks.
+5. **WASM compatibility**: Ability to compile to WebAssembly allows for
+   portable, high-performance code across various environments.
+
+### Development Efficiency
+
+6. **Code generation assistance**: AI-assisted code completion and boilerplate
+   generation speed up development.
+7. **Easy testing**: Simple command-line tools for testing implemented functions
+   streamline development and debugging.
+
+### Extensibility
+
+8. **Plugin architecture**: Allows easy addition of new functionalities without
+   core system modifications.
+
+## Overall Assessment
+
+This system offers a powerful toolkit for developers working on AI-driven
+applications. It combines LLM flexibility with compiled code structure and
+efficiency, potentially accelerating complex AI system development while
+maintaining robustness.
+
+## Potential Challenges
+
+- Learning curve associated with XTP Schema
+- Ensuring generated code meets performance and security standards
+
+Despite these challenges, the benefits in rapid prototyping and AI-powered
+functionality development appear to outweigh the potential hurdles.

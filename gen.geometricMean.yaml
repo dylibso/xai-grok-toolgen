@@ -1,0 +1,37 @@
+version: v1-draft
+exports:
+  calculateGeometricMean:
+    description: |
+      Compute the geometric mean of a list of non-negative numbers. 
+      The geometric mean is useful in fields like finance for averaging rates of return, or in growth rates.
+      This function assumes all inputs are non-negative. If negative numbers are provided, 
+      the result might not be meaningful or could result in an error.
+    codeSamples:
+      - lang: typescript
+        source: |
+          // Compute the product of all numbers, then take the nth root where n is the count of numbers
+          const product = input.numbers.reduce((acc, num) => acc * num, 1);
+          const geoMean = Math.pow(product, 1 / input.numbers.length);
+          return { geometricMean: isNaN(geoMean) ? 0 : geoMean }; // Return 0 if result is NaN
+    input:
+      contentType: application/json
+      type: object
+      description: A JSON object containing the list of numbers for which the geometric mean will be calculated.
+      properties:
+        numbers:
+          type: array
+          items:
+            type: number
+          description: An array of numbers to calculate the geometric mean from.
+    output:
+      contentType: application/json
+      $ref: "#/components/schemas/GeometricMeanResponse"
+components:
+  schemas:
+    GeometricMeanResponse:
+      description: Output from the calculateGeometricMean function
+      properties:
+        geometricMean:
+          type: number
+          format: float
+          description: The calculated geometric mean of the input numbers. Returns 0 if calculation results in NaN or if inputs are invalid.
