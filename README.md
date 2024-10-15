@@ -2,9 +2,8 @@
 
 For context, see this thread: https://x.com/getxtp/status/1845278087749173641
 
-> [!WARNING] The output from the scripts calling the xAI API is raw and can be
-> hard to parse. If you are planning to run these commands, just know you may
-> need to pick apart the JSON responses quite a bit.
+> [!WARNING] 
+> The output from the scripts calling the xAI API is raw and can behard to parse. If you are planning to run these commands, just know you mayneed to pick apart the JSON responses quite a bit.
 
 ## Usage
 
